@@ -4,7 +4,7 @@ import Typography from 'material-ui/Typography'
 import Toolbar from 'material-ui/Toolbar'
 import styles from './styles'
 import { withRouter } from 'react-router'
-import Test from '../../components/Test'
+import Summary from '../../components/Summary'
 // import axios from 'axios'
 class Main extends Component {
   render () {
@@ -16,7 +16,7 @@ class Main extends Component {
           </Toolbar>
         </AppBar>
         <div style={styles.content} >
-          <Test />
+          <Summary/>
         </div>
       </div>
     )
