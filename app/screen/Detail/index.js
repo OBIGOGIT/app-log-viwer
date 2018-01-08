@@ -8,6 +8,7 @@ import styles from './styles'
 import { withRouter } from 'react-router'
 import LogRatio from '../../components/LogRatio'
 import Timeline from '../../components/Timeline'
+import Timeline2 from '../../components/Timeline2'
 import SelectedLog from '../../components/SelectedLog'
 import * as logActions from '../../actions/log'
 import * as selectedLogActions from '../../actions/selectedLog'
@@ -31,9 +32,14 @@ class Detail extends Component {
           </Toolbar>
         </AppBar>
         <div style={styles.content} >
+        {/*
           <div style={styles.row} >
             <LogRatio code={code} version={version}/>
             <Timeline />
+          </div>
+          */}
+          <div style={styles.row} >
+            <Timeline2 />
           </div>
           <div style={styles.row} >
             <SelectedLog />
