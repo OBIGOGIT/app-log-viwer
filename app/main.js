@@ -12,13 +12,15 @@ import createHistory from 'history/createBrowserHistory' // createBrowserHistory
 
 import { routerReducer, routerMiddleware } from 'react-router-redux'
 
-import myReducer from './reducers'
+import log from './reducers/log'
+import selectedLog from './reducers/selectedLog'
 
 const history = createHistory()
 const middleware = routerMiddleware(history)
 const store = createStore(
   combineReducers({
-    myReducer,
+    log,
+    selectedLog,
     router: routerReducer
   }),
   applyMiddleware(middleware, thunkMiddleware)

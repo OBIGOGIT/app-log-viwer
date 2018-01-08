@@ -23,7 +23,6 @@ class LogRatio extends Component {
       return item.count
     })
     data = data.map((item) => {
-      item.percentage = ((item.count / totalCount) * 100).toFixed(1)
       item.color = this.colors[item._id]
       return item
     })
@@ -60,10 +59,7 @@ class LogRatio extends Component {
     .attr('dy', '.50em')
     .style('text-anchor', 'middle')
     .text((d) => {
-      if (d.data.percentage < 8) {
-        return ''
-      }
-      return d.data.percentage + '%'
+      return d.data.count
     })
 
     g.append('text')

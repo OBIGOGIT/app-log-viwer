@@ -8,6 +8,6 @@ export default {
     width: '80%',
     marginTop: '100px',
     display: 'flex',
-    flexDirection: 'center'
+    flexDirection: 'row'
   }
 }
