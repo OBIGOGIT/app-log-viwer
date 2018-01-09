@@ -12,7 +12,7 @@ class LogRatio extends Component {
   constructor () {
     super()
     this.colors = {
-      'debug': '#a9a9a9',
+      'debug': '#555555',
       'info': '#4286f4',
       'warn': '#f48c41',
       'error': '#e03535'
@@ -64,7 +64,7 @@ class LogRatio extends Component {
 
     g.append('text')
       .attr('text-anchor', 'middle')
-      .attr('font-size', '4em')
+      .attr('font-size', '3em')
       .attr('y', 20)
       .text(totalCount)
   }

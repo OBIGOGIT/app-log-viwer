@@ -5,7 +5,10 @@ import moment from 'moment'
 import * as d3 from 'd3v4'
 const styles = theme => ({
   root: {
-    width: '100%'
+    width: '100%',
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center'
   }
 })
 
@@ -13,7 +16,7 @@ class Timeline extends Component {
   constructor () {
     super()
     this.colors = {
-      'debug': '#a9a9a9',
+      'debug': '#555555',
       'info': '#4286f4',
       'warn': '#f48c41',
       'error': '#e03535'
@@ -41,36 +44,37 @@ class Timeline extends Component {
     if (data.length === 0) {
       return
     }
-    const margin = {top: 20, right: 20, bottom: 310, left: 40}
-    const margin2 = {top: 430, right: 20, bottom: 30, left: 40}
+    const margin = {top: 20, right: 10, bottom: 130, left: 40}
+    const margin2 = {top: 270, right: 10, bottom: 30, left: 40}
 
     const width = 960 - margin.left - margin.right
-    const height = 500 - margin.top - margin.bottom
-    const height2 = 500 - margin2.top - margin2.bottom
+    const height = 340 - margin.top - margin.bottom
+    const height2 = 340 - margin2.top - margin2.bottom
 
     this.startDate = this.timeParse(moment(data[data.length - 1].createdAt).add('second', -1).format('YYYY-MM-DD HH:mm:ss.SSS'))
     this.endDate = this.timeParse(moment(data[0].createdAt).add('second', 1).format('YYYY-MM-DD HH:mm:ss.SSS'))
 
     this.svg = d3.select('.timeline_chart').append('svg')
     this.svg.attr('width', 960)
-    this.svg.attr('height', 500)
+    this.svg.attr('height', 340)
 
     this.focus = this.svg.append('g')
     .attr('class', 'focus')
-    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')');
+    .attr('transform', 'translate(' + margin.left + ',' + margin.top + ')')
 
     this.context = this.svg.append('g')
     .attr('class', 'context')
-    .attr('transform', 'translate(' + margin2.left + ',' + margin2.top + ')');
+    .attr('transform', 'translate(' + margin2.left + ',' + margin2.top + ')')
 
     this.brush = d3.brushX()
     .extent([[0, 0], [width, height2]])
     .on('brush end', this.brushed)
 
-
-
     this.scale = d3.scaleTime()
     this.scale.domain([this.startDate, this.endDate]).range([0, width])
+
+    this.rectWidthScale = d3.scaleLog()
+    this.rectWidthScale.domain([1, 1000]).range([0.1, 1])
 
     this.yScale = d3.scaleBand().domain(['debug', 'info', 'warn', 'error'])
     this.yScale.rangeRound([0, height]).padding(0.2)
@@ -78,33 +82,27 @@ class Timeline extends Component {
     this.scale2 = d3.scaleTime().range([0, width]).domain(this.scale.domain())
     this.yScale2 = d3.scaleBand().rangeRound([0, height2]).padding(0.2).domain(this.yScale.domain())
 
-
     this.xaxis = d3.axisBottom(this.scale)
     this.xaxis2 = d3.axisBottom(this.scale2)
-
-
 
     const yaxis = d3.axisLeft(this.yScale)
 
     this.gx = this.focus.append('g')
-    .attr('class', 'xaxis')
+    .attr('class', 'axis axis--x')
     .attr('transform', 'translate(0,' + height + ')')
     .call(this.xaxis)
 
-    this.focus.append('g')
-    .attr('class', 'yaxis')
-    .call(yaxis)
-
     this.context.append('g')
-    .attr('class', 'xaxis')
+    .attr('class', 'axis axis--x')
     .attr('transform', 'translate(0,' + height2 + ')')
     .call(this.xaxis2)
 
-    this.context.append('g')
+    const b = this.context.append('g')
     .attr('class', 'brush')
     .call(this.brush)
-    .call(this.brush.move, this.scale.range());
+    .call(this.brush.move, this.scale.range())
 
+    b.selectAll('rect.handle').style('fill', '#888888')
 
     this.zoom = d3.zoom()
     .scaleExtent([1, 1000])
@@ -125,6 +123,15 @@ class Timeline extends Component {
     // this.svg.call(zoom)
     this.drawEvents(data)
     this.drawBrushItems(data)
+
+    const axisG = this.focus.append('g')
+    // 오버레이 방지용 rect생성
+    axisG.append('g').append('rect').attr('height', height).attr('width', margin.left)
+    .style('fill', '#ffffff').attr('transform', 'translate(' + (-margin.left) + ',0)')
+
+    axisG.append('g').attr('class', 'axis axis--y')
+    .call(yaxis)
+    this.focus.append('rect')
   }
   updateEvents () {
     if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'brush') {
@@ -133,17 +140,16 @@ class Timeline extends Component {
     const t = d3.event.transform
     this.scale.domain([this.startDate, this.endDate])
     this.gx.call(this.xaxis.scale(d3.event.transform.rescaleX(this.scale)))
-    this.focus.select('.xaxis').call(this.xaxis);
+    this.focus.select('.xaxis').call(this.xaxis)
 
-    this.context.select('.brush').call(this.brush.move, this.scale.range().map(t.invertX, t));
+    this.context.select('.brush').call(this.brush.move, this.scale.range().map(t.invertX, t))
 
     return this.focus.selectAll('rect.item')
-    .attr('x', (d) => {
-      return d3.event.transform.applyX(this.scale(this.timeParse(d.createdAt)))
-    })
+    .attr('width', (d) => this.rectWidthScale(t.k) * this.yScale.bandwidth())
+    .attr('x', (d) => d3.event.transform.applyX(this.scale(this.timeParse(d.createdAt))))
   }
   brushed () {
-    if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'zoom') return; // ignore brush-by-zoom
+    if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'zoom') return // ignore brush-by-zoom
 
     const margin = {top: 20, right: 20, bottom: 110, left: 40}
     const width = 960 - margin.left - margin.right
@@ -151,33 +157,25 @@ class Timeline extends Component {
 
     this.scale.domain(s.map(this.scale2.invert, this.scale2))
     this.gx.call(this.xaxis.scale(this.scale))
-    this.focus.select('.xaxis').call(this.xaxis);
+    this.focus.select('.xaxis').call(this.xaxis)
     this.focus.selectAll('rect.item')
-    .attr('x', (d) => {
-      return this.scale(this.timeParse(d.createdAt))
-    })
+    .attr('x', (d) => this.scale(this.timeParse(d.createdAt)))
     this.svg.select('.zoom')
-    .call(this.zoom.transform, 
+    .call(this.zoom.transform,
     d3.zoomIdentity
         .scale(width / (s[1] - s[0]))
-        .translate(-s[0], 0));
+        .translate(-s[0], 0))
   }
   drawBrushItems (dates) {
     this.dots2 = this.context.selectAll('rect.item').data(dates)
     this.dots2.enter()
     .append('rect')
     .attr('class', 'item')
-    .attr('x', (d) => {
-      return this.scale2(this.timeParse(d.createdAt))
-    })
-    .attr('y', (e) => {
-      return this.yScale2(e.level)
-    })
-    .attr('width', this.yScale2.bandwidth())
+    .attr('x', (d) => this.scale2(this.timeParse(d.createdAt)))
+    .attr('y', (e) => this.yScale2(e.level))
+    .attr('width', this.yScale2.bandwidth() / 5)
     .attr('height', this.yScale2.bandwidth())
-    .style('fill', (e) => {
-      return this.colors[e.level]
-    })
+    .style('fill', (e) => this.colors[e.level])
 
     this.dots2.exit().remove()
   }
@@ -186,18 +184,11 @@ class Timeline extends Component {
     this.dots.enter()
     .append('rect')
     .attr('class', 'item')
-    .attr('x', (d) => {
-      return this.scale(this.timeParse(d.createdAt))
-    })
-    .attr('y', (e) => {
-      // return this.yScale(this.height[e.level])
-      return this.yScale(e.level)
-    })
-    .attr('width', this.yScale.bandwidth())
+    .attr('x', (d) => this.scale(this.timeParse(d.createdAt)))
+    .attr('y', (e) => this.yScale(e.level))
+    .attr('width', () => this.yScale.bandwidth() / 10)
     .attr('height', this.yScale.bandwidth())
-    .style('fill', (e) => {
-      return this.colors[e.level]
-    })
+    .style('fill', (e) => this.colors[e.level])
 
     this.dots.exit().remove()
   }
