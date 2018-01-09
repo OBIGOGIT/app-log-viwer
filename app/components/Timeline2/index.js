@@ -42,9 +42,9 @@ class Timeline2 extends Component {
       return
     }
 
-    this.svg = d3.select('.timeline_chart > svg')
+    this.svg = d3.select('.timeline_chart2 > svg')
     // this.svg.attr('width', 960).attr('height', 500)
-    const margin = {top: 20, right: 20, bottom: 110, left: 40}
+    const margin = {top: 20, right: 20, bottom: 310, left: 40}
     const margin2 = {top: 430, right: 20, bottom: 30, left: 40}
     /*
     const width = +this.svg.attr('width') - margin.left - margin.right
@@ -126,6 +126,7 @@ class Timeline2 extends Component {
     })
     */
 
+    console.log(d3.extent(data, (d) => { return new Date(d.createdAt) }))
     this.x.domain(d3.extent(data, (d) => { return new Date(d.createdAt) }))
     this.y.domain(['debug', 'info', 'warn', 'error'])
     this.x2.domain(this.x.domain())
@@ -252,12 +253,16 @@ class Timeline2 extends Component {
     */
   }
   zoomed () {
-    if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'brush') return // ignore zoom-by-brush
+    console.log('zoomed')
+    if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'brush') {
+      console.log('zoom return')
+      return // ignore zoom-by-brush
+    }
     const t = d3.event.transform
     // gx.call(xaxis.scale(d3.event.transform.rescaleX(this.scale)))
-    this.focus.call(this.xAxis.scale(t.rescaleX(this.x)))
+    // this.focus.call(this.xAxis.scale(t.rescaleX(this.x)))
     this.x.domain(t.rescaleX(this.x2).domain())
-    this.focus.select('.area').attr('d', this.area);
+    // this.focus.select('.area').attr('d', this.area);
     this.focus.select('.axis--x').call(this.xAxis);
     this.context.select('.brush').call(this.brush.move, this.x.range().map(t.invertX, t));
 
@@ -267,6 +272,7 @@ class Timeline2 extends Component {
     })
   }
   brushed () {
+    console.log('brushed')
     const margin = {top: 20, right: 20, bottom: 110, left: 40}
     const width = 960 - margin.left - margin.right
     if (d3.event.sourceEvent && d3.event.sourceEvent.type === 'zoom') return; // ignore brush-by-zoom
@@ -277,6 +283,14 @@ class Timeline2 extends Component {
     this.svg.select('.zoom').call(this.zoom.transform, d3.zoomIdentity
         .scale(width / (s[1] - s[0]))
         .translate(-s[0], 0));
+
+/*
+    debugger
+    this.dots.selectAll('rect.dot')
+    .attr('x', (d) => {
+      return d3.event.transform.applyX(this.x(new Date(d.createdAt)))
+    })
+    */
   }
 
 
@@ -313,7 +327,7 @@ class Timeline2 extends Component {
     console.log('timeline render')
     return (
       <div className={classes.root}>
-        <div className={'timeline_chart'} >
+        <div className={'timeline_chart2'} >
           <svg width='960' height='500'></svg>
         </div>
       </div>

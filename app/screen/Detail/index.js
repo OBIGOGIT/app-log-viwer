@@ -32,12 +32,12 @@ class Detail extends Component {
           </Toolbar>
         </AppBar>
         <div style={styles.content} >
-        {/*
           <div style={styles.row} >
+        {/*
             <LogRatio code={code} version={version}/>
+        */}
             <Timeline />
           </div>
-          */}
           <div style={styles.row} >
             <Timeline2 />
           </div>

@@ -50,7 +50,7 @@ class SelectedLog extends Component {
               {selectedLog.logs.map(n => {
                 return (
                   <TableRow key={n._id} style={this.getRowClass(n.level)} >
-                    <TableCell className={classes.time} >{moment(n.createdAt).fromNow()}</TableCell>
+                    <TableCell className={classes.time} >{moment(n.createdAt).format('YYYY-MM-DD HH:mm:ss.SSS')}</TableCell>
                     <TableCell className={classes.level} >{n.level}</TableCell>
                     <TableCell>{n.comment}</TableCell>
                   </TableRow>
