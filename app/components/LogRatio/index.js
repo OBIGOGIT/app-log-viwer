@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { withStyles } from 'material-ui/styles'
 import * as d3 from 'd3v4'
 import axios from 'axios'
+import {colors} from '../../libs/const'
 const styles = theme => ({
   root: {
     width: '100%'
@@ -9,21 +10,12 @@ const styles = theme => ({
 })
 
 class LogRatio extends Component {
-  constructor () {
-    super()
-    this.colors = {
-      'debug': '#555555',
-      'info': '#4286f4',
-      'warn': '#f48c41',
-      'error': '#e03535'
-    }
-  }
   drawChart (data) {
     const totalCount = d3.sum(data, (item) => {
       return item.count
     })
     data = data.map((item) => {
-      item.color = this.colors[item._id]
+      item.color = colors[item._id]
       return item
     })
     const width = 340

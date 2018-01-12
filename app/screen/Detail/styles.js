@@ -5,7 +5,7 @@ export default {
     alignItems: 'center'
   },
   content: {
-    width: '80%',
+    width: '1100px',
     marginTop: '100px',
     display: 'flex',
     flexDirection: 'column'

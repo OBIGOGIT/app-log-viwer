@@ -14,6 +14,7 @@ import { routerReducer, routerMiddleware } from 'react-router-redux'
 
 import log from './reducers/log'
 import selectedLog from './reducers/selectedLog'
+import detailLog from './reducers/detailLog'
 
 const history = createHistory()
 const middleware = routerMiddleware(history)
@@ -21,6 +22,7 @@ const store = createStore(
   combineReducers({
     log,
     selectedLog,
+    detailLog,
     router: routerReducer
   }),
   applyMiddleware(middleware, thunkMiddleware)
